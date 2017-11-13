@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+    <android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:background="@color/cardview_dark_background"
+        android:id="@+id/card_view"
+        android:layout_margin="5dp"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        card_view:cardElevation="5dp"
+        card_view:cardCornerRadius="6dp"
+        card_view:cardBackgroundColor="#ccCccc">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/card_view_image"
+                android:layout_width="match_parent"
+                android:layout_height="250px"
+                android:duplicateParentState="true"
+                android:background="@drawable/side_nav_bar"/>
+
+        <TextView
+            android:id="@+id/card_text_on_image"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom"
+            android:textColor="@color/cardview_light_background"
+            android:text="@string/card_text"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+    <LinearLayout
+        android:layout_below="@id/card_view_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/card_view_text_prodname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FF2222"
+            android:text="RIO DE JANEIRO"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewEnd"
+            android:layout_marginRight="10sp"
+            android:text="2$"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="300px"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_gravity="left"
+                android:background="@drawable/round_button"
+                android:id="@+id/button_minus"
+                android:layout_width="80px"
+                android:layout_height="80px"
+                android:textSize="30sp"
+                android:text="-" />
+            <TextView
+                android:id="@+id/product_quantity"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:text="1"
+                android:layout_width="100px"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"/>
+            <Button
+                android:layout_gravity="right"
+                android:background="@drawable/round_button"
+                android:id="@+id/button_plus"
+                android:layout_width="80px"
+                android:layout_height="80px"
+                android:textSize="30sp"
+                android:text="+" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+        <ImageView
+            android:layout_marginRight="8dp"
+            android:layout_alignEnd="@id/linearLayout"
+            android:layout_below="@id/linearLayout"
+            android:src="@drawable/ic_basket"
+            android:layout_width="100px"
+            android:layout_height="100px" />
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
+
