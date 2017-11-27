@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:weightSum="1">
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/imageViewBasket"
                 android:layout_width="90px"
                 android:layout_height="90px"
                 android:src="@drawable/basket"
@@ -71,7 +71,7 @@
 
             <TextView
             android:id="@+id/price"
-            android:layout_width="288dp"
+            android:layout_width="178dp"
             android:layout_height="wrap_content"
             android:textAlignment="viewEnd"
             android:layout_marginRight="10sp"

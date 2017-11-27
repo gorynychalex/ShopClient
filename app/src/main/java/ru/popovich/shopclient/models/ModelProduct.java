@@ -6,12 +6,12 @@ public class ModelProduct {
     private String onCardText;
     private String underCardText;
     private int pictures;
-    private String price;
+    private float price;
 
     public ModelProduct() {
     }
 
-    public ModelProduct(String onCardText, String underCardText, int pictures, String price) {
+    public ModelProduct(String onCardText, String underCardText, int pictures, float price) {
         this.onCardText = onCardText;
         this.underCardText = underCardText;
         this.pictures = pictures;
@@ -42,11 +42,11 @@ public class ModelProduct {
         this.pictures = pictures;
     }
 
-    public String getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 }

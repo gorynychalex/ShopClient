@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
+import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;
 
@@ -15,14 +16,19 @@ import ru.popovich.shopclient.models.ModelProduct;
 
 public class CollectionPagerAdapter extends FragmentStatePagerAdapter {
 
-    String[] tab_names = {"Drink", "Snaks", "Sandwich"};
+//    String[] tab_names = {"Drink", "Snaks", "Sandwich"};
 
 //    List<ModelProduct> products;
 
     Catalog catalog;
-
     public void setCatalog(Catalog catalog) {
         this.catalog = catalog;
+    }
+
+
+    Basket basket;
+    public void setBasket(Basket basket) {
+        this.basket = basket;
     }
 
     public CollectionPagerAdapter(FragmentManager fm) {
@@ -38,17 +44,17 @@ public class CollectionPagerAdapter extends FragmentStatePagerAdapter {
 //        fragment.setArguments(args);
 //        return fragment;
 //        return null;
-        MainActivity.ObjectFragment objectFragment = MainActivity.ObjectFragment.newInstance(position, catalog.getCategories().get(position).getProducts());
+        MainActivity.ObjectFragment objectFragment = MainActivity.ObjectFragment.newInstance(position, catalog.getCategories().get(position).getProducts(), basket);
         return objectFragment;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return tab_names[position];
+        return catalog.getCategories().get(position).getName();
     }
 
     @Override
     public int getCount() {
-        return tab_names.length;
+        return catalog.getCategories().size();
     }
 }

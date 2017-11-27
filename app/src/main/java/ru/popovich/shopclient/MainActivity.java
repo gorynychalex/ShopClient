@@ -1,5 +1,6 @@
 package ru.popovich.shopclient;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,6 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import ru.popovich.shopclient.data.BasketData;
+import ru.popovich.shopclient.data.CatalogData;
+import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;
 import ru.popovich.shopclient.models.ProdCategory;
@@ -41,50 +46,53 @@ public class MainActivity extends AppCompatActivity
     ViewPager viewPager;
     CollectionPagerAdapter pagerAdapter;
 
+    Basket basket;
 
-
-    private String[] dataset = {"First", "Second", "Third"};
-
-    private List<String> prodset = Arrays.asList("Prod1", "Prod2", "Prod3");
-
+    Intent intentBasket;
 
     /// Models
-    private Catalog catalogs = new Catalog();
-    private List<ProdCategory> prodCategories1 = new ArrayList<>();
-    private List<ProdCategory> prodCategories2 = new ArrayList<>();
-    private List<ProdCategory> prodCategories3 = new ArrayList<>();
-    private List<ModelProduct> products1 = new ArrayList<>();
-    private List<ModelProduct> products2 = new ArrayList<>();
-    private List<ModelProduct> products3 = new ArrayList<>();
+//    private Catalog catalogs = new Catalog();
+//    private List<ProdCategory> prodCategories1 = new ArrayList<>();
+//    private List<ProdCategory> prodCategories2 = new ArrayList<>();
+//    private List<ProdCategory> prodCategories3 = new ArrayList<>();
+//    private List<ModelProduct> products1 = new ArrayList<>();
+//    private List<ModelProduct> products2 = new ArrayList<>();
+//    private List<ModelProduct> products3 = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        catalogs.setName("Drinks and Snaks");
+        CatalogData.setCatalogs();
+
+        //////////////// CATALOG EXAMPLE //////////////////////////////
+//        catalogs.setName("Drinks and Snaks");
         //Initialize Products
-        products1.add(new ModelProduct("Sandwich", "Rio De Janeiro",R.drawable.sandwich,"2$"));
-        products1.add(new ModelProduct("Hot dog", "Hot Evening", R.drawable.sandwich2, "2$ 50c"));
-        products1.add(new ModelProduct("Sanwich", "Reptile", R.drawable.sandwich, "5$"));
+//        products1.add(new ModelProduct("Sandwich", "Rio De Janeiro",R.drawable.sandwich,2F));
+//        products1.add(new ModelProduct("Hot dog", "Hot Evening", R.drawable.sandwich2, 2.5F));
+//        products1.add(new ModelProduct("Sanwich", "Reptile", R.drawable.sandwich, 5F));
+//
+//        prodCategories1.add(new ProdCategory("Sandwichs",products1));
+//
+//        products2.add(new ModelProduct("Apple Juice", "Apple Juice", R.drawable.shwepps,2F));
+//        products2.add(new ModelProduct("Orange Juice", "Orange Juice", R.drawable.ic_basket, 2.5F));
+//        products2.add(new ModelProduct("Strawberry Juice", "Strawberry Juice", R.drawable.shwepps, 5F));
+//
+//        prodCategories1.add(new ProdCategory("Drinks", products2));
+//
+//        products3.add(new ModelProduct("Noodle", "Noodle", R.drawable.shwepps,2.0F));
+//        products3.add(new ModelProduct("Chiken", "Chiken", R.drawable.sandwich, 2.5F));
+//        products3.add(new ModelProduct("Nagins", "Nagins", R.drawable.ic_basket, 5F));
+//
+//
+//        prodCategories1.add(new ProdCategory("Drinks", products3));
+//
+//        catalogs.setCategories(prodCategories1);
 
-        prodCategories1.add(new ProdCategory("Sandwichs",products1));
 
-        products2.add(new ModelProduct("Apple Juice", "Apple Juice", R.drawable.shwepps,"2$"));
-        products2.add(new ModelProduct("Orange Juice", "Orange Juice", R.drawable.ic_basket, "2$ 50c"));
-        products2.add(new ModelProduct("Strawberry Juice", "Strawberry Juice", R.drawable.shwepps, "5$"));
-
-        prodCategories1.add(new ProdCategory("Drinks", products2));
-
-        products3.add(new ModelProduct("Noodle", "Noodle", R.drawable.shwepps,"2$"));
-        products3.add(new ModelProduct("Chiken", "Chiken", R.drawable.sandwich, "2$ 50c"));
-        products3.add(new ModelProduct("Nagins", "Nagins", R.drawable.ic_basket, "5$"));
-
-
-        prodCategories1.add(new ProdCategory("Drinks", products3));
-
-        catalogs.setCategories(prodCategories1);
-
+        ///////////////// BASKET INITIALIZE //////////////////////////////
+        basket = new Basket();
 
         ////////////// Different toolbars and buttons ////////////////////
         toolbar = (Toolbar) findViewById(R.id.toolbar1);
@@ -93,7 +101,8 @@ public class MainActivity extends AppCompatActivity
         //////////// Tab Layout /////////////////////
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager());
 //        pagerAdapter.setProducts(products2);
-        pagerAdapter.setCatalog(catalogs);
+        pagerAdapter.setCatalog(CatalogData.getCatalogs());
+        pagerAdapter.setBasket(BasketData.getBasket());
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -103,14 +112,21 @@ public class MainActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(viewPager);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Nothing in basket.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view,
+                        String.valueOf(BasketData.getBasket().getProducts() != null?
+                                "There are " + BasketData.getBasket().getProducts().size() + " products in the basket." :
+                                "Basket is empty."), Snackbar.LENGTH_LONG)
+                        .setAction("Basket", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                intentBasket = new Intent(getApplicationContext(), BasketActivity.class);
+                                startActivity(intentBasket);
+                            }
+                        }).show();
             }
         });
 
@@ -191,13 +207,16 @@ public class MainActivity extends AppCompatActivity
 
         private List<ModelProduct> products = new ArrayList<>();
 
+        private Basket basket;
+
         public ObjectFragment() {
 
         }
 
-        public static ObjectFragment newInstance(int pageNumber, List<ModelProduct> products){
+        public static ObjectFragment newInstance(int pageNumber, List<ModelProduct> products, Basket basket){
             ObjectFragment objectFragment = new ObjectFragment();
             objectFragment.products = products;
+            objectFragment.basket = basket;
             Bundle arg = new Bundle();
             arg.putInt(ARG_OBJECT,pageNumber);
             objectFragment.setArguments(arg);
@@ -234,7 +253,7 @@ public class MainActivity extends AppCompatActivity
             mRecyclerView.setLayoutManager(mLayoutManager);
 
             // specify an adapter (see also next example)
-            mAdapter = new AdapterRecyclerView(products);
+            mAdapter = new AdapterRecyclerView(products,basket);
             mRecyclerView.setAdapter(mAdapter);
 
             return rootView;
