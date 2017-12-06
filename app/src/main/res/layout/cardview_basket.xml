@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/cardview_dark_background"
+    android:id="@+id/card_view"
+    android:layout_margin="5dp"
+    android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+    card_view:cardElevation="10dp"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardBackgroundColor="#ccCccc">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/card_view_image"
+            android:layout_width="250px"
+            android:layout_height="250px"
+            android:duplicateParentState="true"
+            android:background="#fff"/>
+
+        <TextView
+            android:id="@+id/card_text_on_image"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom"
+            android:textColor="@color/cardview_dark_background"
+            android:text="@string/card_text"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/card_view_image" />
+
+        <TextView
+            android:id="@+id/card_view_text_prodname"
+            android:layout_width="262dp"
+            android:layout_height="wrap_content"
+            android:text="RIO DE JANEIRO"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_alignBottom="@+id/card_text_on_image"
+            android:layout_toEndOf="@+id/card_view_image" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout"
+            android:orientation="vertical"
+            android:layout_alignBottom="@+id/card_view_image"
+            android:layout_alignEnd="@+id/card_view_text_prodname"
+            android:layout_toEndOf="@+id/card_view_image">
+
+
+            <LinearLayout
+                android:id="@+id/plusminusarea"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:layout_width="300px"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_gravity="left"
+                    android:id="@+id/button_minus"
+                    android:layout_width="80px"
+                    android:layout_height="80px"
+                    android:text="-" />
+                <TextView
+                    android:id="@+id/product_quantity"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:text="1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"/>
+                <Button
+                    android:layout_gravity="right"
+                    android:id="@+id/button_plus"
+                    android:layout_width="80px"
+                    android:layout_height="80px"
+                    android:textSize="14dp"
+                    android:text="+" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageViewBasket"
+            android:layout_width="90px"
+            android:layout_height="90px"
+            android:layout_weight="0.08"
+            android:src="@drawable/basket"
+            android:textAlignment="center"
+            android:layout_below="@+id/card_text_on_image"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="34dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10sp"
+            android:text="2$"
+            android:textAlignment="viewEnd"
+            android:textSize="24sp"
+            android:layout_above="@+id/card_view_text_prodname"
+            android:layout_alignEnd="@+id/card_view_text_prodname"
+            android:layout_marginEnd="8dp" />
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

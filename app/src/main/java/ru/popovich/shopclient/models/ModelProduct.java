@@ -7,6 +7,7 @@ public class ModelProduct {
     private String underCardText;
     private int pictures;
     private float price;
+    private int amount;
 
     public ModelProduct() {
     }
@@ -48,5 +49,13 @@ public class ModelProduct {
 
     public void setPrice(float price) {
         this.price = price;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

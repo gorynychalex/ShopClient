@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity
 
         public static final String ARG_OBJECT = "object";
 
+
         private RecyclerView mRecyclerView;
         private RecyclerView.Adapter mAdapter;
         private RecyclerView.LayoutManager mLayoutManager;
