@@ -1,21 +1,12 @@
 package ru.popovich.shopclient;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.MenuItem;
 import android.widget.TextView;
 
 import ru.popovich.shopclient.data.BasketData;
-import ru.popovich.shopclient.models.Basket;
 
 public class BasketActivity extends Activity{
 
@@ -24,8 +15,8 @@ public class BasketActivity extends Activity{
     private RecyclerView.LayoutManager mLayoutManager;
 
 
-    TextView productsBasket;
-    TextView commonPrice;
+    TextView size_basket;
+    TextView bill;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +24,12 @@ public class BasketActivity extends Activity{
         setContentView(R.layout.activity_basket);
 
         //Help addon ---------- DON'T SHOW ------------------------
-        productsBasket = (TextView) findViewById(R.id.size_basket);
-        productsBasket.setText(BasketData.getBasket().toString());
-//        productsBasket.setText(R.string.app_name);
+        size_basket = (TextView) findViewById(R.id.size_basket);
+        size_basket.setText((String.valueOf(BasketData.getBasket().getProducts().size())));
+//        size_basket.setText(R.string.app_name);
 
-        commonPrice = (TextView) findViewById(R.id.common_price);
+        bill = (TextView) findViewById(R.id.bill);
+        bill.setText(String.valueOf(BasketData.getBasket().getBill()));
 
         //Recycler view
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_basket);
@@ -52,10 +44,7 @@ public class BasketActivity extends Activity{
 
         // specify an adapter (see also next example)
 //        mAdapter = new AdapterRecyclerView(BasketData.getBasket().getProducts());
-        mAdapter = new AdapterRecyclerViewBasket(BasketData.getBasket().getProductMap());
+        mAdapter = new AdapterRecyclerViewBasket(BasketData.getBasket());
         mRecyclerView.setAdapter(mAdapter);
-
-        commonPrice.setText(String.valueOf(BasketData.getBasket().getSum()));
-
     }
 }

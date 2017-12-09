@@ -1,9 +1,7 @@
 package ru.popovich.shopclient;
 
 import android.content.Context;
-import android.support.annotation.DrawableRes;
 import android.support.v7.widget.RecyclerView;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +10,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ru.popovich.shopclient.data.BasketData;
 import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.ModelProduct;
-import ru.popovich.shopclient.models.ModelProductBasket;
 
 /**
  * Created by gorynych on 01.11.17.
@@ -92,30 +87,10 @@ public class AdapterRecyclerView extends RecyclerView.Adapter<AdapterRecyclerVie
             @Override
             public void onClick(View view) {
 
-                if(basket.getProducts() == null){
-                    basket.setProducts(new ArrayList<ModelProduct>());
-                    basket.setCounterProduct(new ArrayList<Integer>());
-                }
-
-                if(basket.getProductBasketSet() == null){
-                    basket.setProductBasketSet(new android.support.v4.util.ArraySet<ModelProductBasket>());
-                    basket.setProductSet(new android.support.v4.util.ArraySet<ModelProduct>());
-                }
-
-                basket.getProducts().add(mDataset.get(position));
-                basket.getCounterProduct().add(holder.product_quantity_int);
-
-                basket.addProductBasketSet(mDataset.get(position),holder.product_quantity_int);
-                basket.addProductMap(mDataset.get(position),holder.product_quantity_int);
-//                basket.getProductBasketSet().add(new ModelProductBasket(mDataset.get(position),holder.product_quantity_int));
-//                basket.getProductSet().add(new ModelProduct());
-
-
+                //ADD SELECTED PRODUCT AT BASKET
+                basket.addProduct(mDataset.get(position),holder.product_quantity_int);
 
                 Log.d("AdapterRecyclerView", "image basket on click");
-                Log.d("AdapterRecyclerView", String.valueOf(basket.getProducts().size()));
-//                basket.getProducts().add(mDataset.get(position));
-//                holder.product_quantity_int;
             }
         });
     }
@@ -127,30 +102,35 @@ public class AdapterRecyclerView extends RecyclerView.Adapter<AdapterRecyclerVie
 
         final Context context;
 
-        public TextView textCategory;
-        public TextView textProdname;
-        public TextView price;
-        public ImageView imageView;
-        public Button buttonPlus;
-        public Button buttonMinus;
-        public TextView product_quantity;
-        public int product_quantity_int=1;
-        public ImageView imageViewBasket;
+        private TextView textCategory;
+        private TextView textProdname;
+        private TextView price;
+        private ImageView imageView;
+        private Button buttonPlus;
+        private Button buttonMinus;
+        private TextView product_quantity;
+        private int product_quantity_int=1;
+        private ImageView imageViewBasket;
 
         public ViewHolder(View itemView) {
             super(itemView);
+
             textProdname = itemView.findViewById(R.id.card_view_text_prodname);
+
             textCategory = itemView.findViewById(R.id.card_text_on_image);
+
             price = itemView.findViewById(R.id.price);
-            imageView = itemView.findViewById(R.id.card_view_image);
-
-
-            imageViewBasket = itemView.findViewById(R.id.imageViewBasket);
 
             product_quantity = itemView.findViewById(R.id.product_quantity);
             product_quantity.setText(String.valueOf(product_quantity_int));
+
             buttonPlus = itemView.findViewById(R.id.button_plus);
+
             buttonMinus = itemView.findViewById(R.id.button_minus);
+
+            imageView = itemView.findViewById(R.id.card_view_image);
+
+            imageViewBasket = itemView.findViewById(R.id.imageViewBasket);
 
             context = itemView.getContext();
         }

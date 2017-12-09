@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         CatalogData.setCatalogs();
+
         ///////////////// BASKET INITIALIZE //////////////////////////////
         basket = new Basket();
 

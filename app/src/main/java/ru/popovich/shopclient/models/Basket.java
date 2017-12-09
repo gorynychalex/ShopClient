@@ -1,12 +1,9 @@
 package ru.popovich.shopclient.models;
 
-import android.content.Intent;
+import android.util.Log;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Basket class
@@ -14,112 +11,57 @@ import java.util.Set;
 
 public class Basket {
 
-    Map<ModelProduct, ModelProductBasket> productMap;
-    List<ModelProductBasket> productBaskets;
+    List<ModelProductBasket> products;
 
-    Set<ModelProduct> productSet;
-    Set<ModelProductBasket> productBasketSet;
-
-    List<ModelProduct> products;
-    List<Integer> counterProduct;
-    double sum;
+    double bill;
 
     {
-        productMap = new HashMap<>();
+        products = new ArrayList<>();
     }
 
-    public List<ModelProduct> getProducts() {
-        return products;
-    }
+    public void addProduct(ModelProduct product, int count){
 
-    public void setProducts(List<ModelProduct> products) {
-        this.products = products;
-    }
-
-    public List<Integer> getCounterProduct() {
-        return counterProduct;
-    }
-
-    public void setCounterProduct(List<Integer> counterProduct) {
-        this.counterProduct = counterProduct;
-    }
-
-    public double getSum() {
-
-        int i = 0;
-        for(Map.Entry<ModelProduct,ModelProductBasket> product: productMap.entrySet()){
-            sum += product.getValue().getSumPrice();
-        }
-
-        return sum;
-    }
-
-    public void setSum(double sum) {
-        this.sum = sum;
-    }
-
-
-    public Set<ModelProduct> getProductSet() {
-        return productSet;
-    }
-
-    public void setProductSet(Set<ModelProduct> productSet) {
-        this.productSet = productSet;
-    }
-
-    public Set<ModelProductBasket> getProductBasketSet() {
-        return productBasketSet;
-    }
-
-    public void setProductBasketSet(Set<ModelProductBasket> productBasketSet) {
-        this.productBasketSet = productBasketSet;
-    }
-
-    public void addProductBasketSet(ModelProduct product, int count){
-        productSet.add(product);
-        productBasketSet.add(new ModelProductBasket(product,count));
-    }
-
-    public void addProductMap(ModelProduct product, int count){
-        int c = 0;
-        for(Map.Entry<ModelProduct,ModelProductBasket> mod: productMap.entrySet()) {
-            if(mod.getKey().getUnderCardText().equals(product.getUnderCardText())){
-                c = mod.getValue().getCount();
+        //Look at products if found, then set count and var foundProduct
+        boolean foundProduct = false;
+        for (ModelProductBasket productBasket : products) {
+            if (productBasket.equals(product)) {
+                productBasket.setCount(productBasket.getCount() + count);
+                Log.d("Basket", ".setCountProduct() " + String.valueOf(productBasket.getProduct().getOnCardText()));
+                foundProduct = true;
             }
         }
 
-        productMap.put(product, new ModelProductBasket(product,c + count));
+        if(products.isEmpty() || !foundProduct) {
+            products.add(new ModelProductBasket(product, count));
+            Log.d("Basket", "isEmpty() .addNewProduct() " + String.valueOf(product.getOnCardText()));
+        }
+
+        this.bill += product.getPrice() * count;
     }
 
-    public Map<ModelProduct, ModelProductBasket> getProductMap() {
-        return productMap;
+    public List<ModelProductBasket> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ModelProductBasket> products) {
+        this.products = products;
+    }
+
+    public double getBill() {
+
+        return bill;
+    }
+
+    public void setBill(double bill) {
+        this.bill = bill;
     }
 
     @Override
     public String toString() {
 
         StringBuilder prods = new StringBuilder();
-        for(ModelProduct product: products)
-            prods.append(product.getUnderCardText() + "\t");
 
         prods.append("\n");
-
-        for(Integer c: counterProduct)
-            prods.append(c + "\t");
-
-        prods.append("\nSets:\n");
-
-        for(ModelProductBasket p: productBasketSet){
-            prods.append(p.getProduct().getOnCardText() + "\t");
-        }
-
-        prods.append("\nMAP:\n");
-
-        for(Map.Entry<ModelProduct,ModelProductBasket> mod: productMap.entrySet()){
-            prods.append(mod.getKey().getUnderCardText() + "\t" + mod.getKey().getPrice() * mod.getValue().getCount() + "\t");
-            prods.append("\n");
-
-        }
 
         return "there are: \n" + String.valueOf(prods);
     }

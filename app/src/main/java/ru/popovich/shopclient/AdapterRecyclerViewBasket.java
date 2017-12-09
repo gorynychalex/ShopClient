@@ -2,6 +2,7 @@ package ru.popovich.shopclient;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,43 +11,40 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Map;
 
 import ru.popovich.shopclient.models.Basket;
-import ru.popovich.shopclient.models.ModelProduct;
 import ru.popovich.shopclient.models.ModelProductBasket;
 
 /**
- * Created by gorynych on 27.11.17.
+ * Adapter for Basket Recycler View
  */
 
 public class AdapterRecyclerViewBasket extends RecyclerView.Adapter<AdapterRecyclerViewBasket.ViewHolder> {
 
-//    private List<ModelProduct> mDataset;
-    private Map<ModelProduct,ModelProductBasket> mDataMap;
+    private List<ModelProductBasket> mDataset;
+    private Basket basket;
 
-    public AdapterRecyclerViewBasket(Map<ModelProduct, ModelProductBasket> mDataMap) {
-        this.mDataMap = mDataMap;
+    public AdapterRecyclerViewBasket(List<ModelProductBasket> mDataset) {
+        this.mDataset = mDataset;
     }
 
-//    public AdapterRecyclerViewBasket(List<ModelProduct> mDataset) {
-//        this.mDataset = mDataset;
-//    }
+    public AdapterRecyclerViewBasket(Basket basket) {
+        this.basket = basket;
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
         final Context context;
 
-        public TextView textCategory;
-        public TextView textProdname;
-        public TextView price;
-        public ImageView imageView;
-        public Button buttonPlus;
-        public Button buttonMinus;
-        public TextView product_quantity;
-        public int product_quantity_int=1;
-        public ImageView imageViewBasket;
-        public TextView commonprice;
+        private TextView textCategory;
+        private TextView textProdname;
+        private TextView price;
+        private ImageView imageView;
+        private Button buttonPlus;
+        private Button buttonMinus;
+        private TextView product_quantity;
+        private int product_quantity_int=1;
+        private ImageView imageViewBasket;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -62,7 +60,6 @@ public class AdapterRecyclerViewBasket extends RecyclerView.Adapter<AdapterRecyc
             product_quantity.setText(String.valueOf(product_quantity_int));
             buttonPlus = itemView.findViewById(R.id.button_plus);
             buttonMinus = itemView.findViewById(R.id.button_minus);
-            commonprice = itemView.findViewById(R.id.common_price);
         }
     }
 
@@ -78,40 +75,44 @@ public class AdapterRecyclerViewBasket extends RecyclerView.Adapter<AdapterRecyc
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-//        holder.textCategory.setText(mDataset.get(position).getOnCardText());
-        holder.textCategory.setText(mDataMap.get(position).getProduct().getOnCardText());
+//        holder.product_quantity_int = mDataset.get(position).getCount();
+        holder.product_quantity_int = basket.getProducts().get(position).getCount();
 
-//        holder.textProdname.setText(mDataset.get(position).getUnderCardText());
-        holder.textProdname.setText(mDataMap.get(position).getProduct().getUnderCardText());
+        holder.product_quantity.setText(String.valueOf(holder.product_quantity_int));
 
+        Log.d("AdapterRecyclerView", "position = " + position);
+        Log.d("AdapterRecyclerView", "getOnCardText() = " + basket.getProducts().get(position).getProduct().getUnderCardText());
 
-//        holder.price.setText((String.valueOf(mDataset.get(position).getPrice())));
-        holder.price.setText((String.valueOf(mDataMap.get(position).getProduct().getPrice())));
+        holder.textCategory.setText(basket.getProducts().get(position).getProduct().getOnCardText());
 
+        holder.textProdname.setText(basket.getProducts().get(position).getProduct().getUnderCardText());
 
-//        holder.imageView.setImageResource(mDataset.get(position).getPictures());
-        holder.imageView.setImageResource(mDataMap.get(position).getProduct().getPictures());
+        holder.price.setText((String.valueOf(basket.getProducts().get(position).getSumPrice())));
+
+        holder.imageView.setImageResource(basket.getProducts().get(position).getProduct().getPictures());
 
         holder.buttonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 holder.product_quantity.setText(String.valueOf(++holder.product_quantity_int));
-                holder.price.setText((String.valueOf(holder.product_quantity_int * mDataMap.get(position).getProduct().getPrice())));
+                holder.price.setText((String.valueOf(holder.product_quantity_int * basket.getProducts().get(position).getProduct().getPrice())));
             }
         });
+
         holder.buttonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(holder.product_quantity_int > 0)
                     holder.product_quantity.setText(String.valueOf(--holder.product_quantity_int));
-                holder.price.setText((String.valueOf(holder.product_quantity_int * mDataMap.get(position).getProduct().getPrice())));
+
+                    holder.price.setText((String.valueOf(holder.product_quantity_int * basket.getProducts().get(position).getProduct().getPrice())));
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return mDataMap.size();
+        return basket.getProducts().size();
     }
 
 }

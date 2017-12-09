@@ -54,4 +54,11 @@ public class ModelProductBasket {
     public void setSumAmount(int sumAmount) {
         this.sumAmount = sumAmount;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        return ((ModelProduct) obj).getUnderCardText().equals(this.getProduct().getUnderCardText())
+                && (((ModelProduct) obj).getPrice() == this.getProduct().getPrice());
+    }
 }
