@@ -1,5 +1,6 @@
 package ru.popovich.shopclient;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -30,10 +31,12 @@ import java.util.Locale;
 
 import ru.popovich.shopclient.data.BasketData;
 import ru.popovich.shopclient.data.CatalogData;
+import ru.popovich.shopclient.data.ShopDatabase;
 import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;
 import ru.popovich.shopclient.models.ProdCategory;
+import ru.popovich.shopclient.models.Product;
 
 import static ru.popovich.shopclient.R.drawable.sandwich;
 
@@ -49,13 +52,26 @@ public class MainActivity extends AppCompatActivity
     Basket basket;
 
     Intent intentBasket;
+    ShopDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        db = Room
+                .databaseBuilder(getApplicationContext(), ShopDatabase.class, "database-shop")
+                .build();
+//
+//        Log.d("MainActivityDB",String.valueOf(db.productDao().loadAll()));
+
+
+//        db.productDao().insertAll(new Product());
+
+//        Log.d("MainActivityDB",String.valueOf(db.productDao().loadAll()));
+
         CatalogData.setCatalogs();
+
 
         ///////////////// BASKET INITIALIZE //////////////////////////////
         basket = new Basket();
