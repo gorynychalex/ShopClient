@@ -1,4 +1,4 @@
-package ru.popovich.shopclient;
+package ru.popovich.shopclient.ui;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
+import ru.popovich.shopclient.MainActivity;
 import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;

@@ -1,5 +1,7 @@
 package ru.popovich.shopclient;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,34 +27,42 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import ru.popovich.shopclient.data.BasketData;
 import ru.popovich.shopclient.data.CatalogData;
-import ru.popovich.shopclient.data.ShopDatabase;
+import ru.popovich.shopclient.db.entity.ProductEntity;
+import ru.popovich.shopclient.ui.AdapterRecyclerView;
+import ru.popovich.shopclient.ui.CollectionPagerAdapter;
+import ru.popovich.shopclient.viewmodel.ProductListViewModel;
+import ru.popovich.shopclient.db.ShopDatabase;
 import ru.popovich.shopclient.models.Basket;
-import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;
-import ru.popovich.shopclient.models.ProdCategory;
-import ru.popovich.shopclient.models.Product;
-
-import static ru.popovich.shopclient.R.drawable.sandwich;
+import ru.popovich.shopclient.db.entity.ProductCategoryEntity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 
+    private static final String TAG = "MainActivity";
+
     Toolbar toolbar;
     TabLayout tabLayout;
     ViewPager viewPager;
+    DrawerLayout drawer;
+
+    NavigationView navigationView;
+
+    FloatingActionButton fab;
+
     CollectionPagerAdapter pagerAdapter;
 
     Basket basket;
 
     Intent intentBasket;
     ShopDatabase db;
+
+    ProductListViewModel productListViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +71,32 @@ public class MainActivity extends AppCompatActivity
 
         db = Room
                 .databaseBuilder(getApplicationContext(), ShopDatabase.class, "database-shop")
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
                 .build();
-//
-//        Log.d("MainActivityDB",String.valueOf(db.productDao().loadAll()));
 
+        for(ProductEntity entity: db.productDao().loadAll())
+            Log.d(TAG+"_DBTHREAD", entity.getName());
 
-//        db.productDao().insertAll(new Product());
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            ShopDBUtilsProduct.addCategoty(db,new ProductCategoryEntity("Sandwich"));
+//            ShopDBUtilsProduct.addProduct(db,new ProductEntity("Sandwich",2.5F,200, MeasureUnit.GRAM,1));
+//        }
 
-//        Log.d("MainActivityDB",String.valueOf(db.productDao().loadAll()));
+//        ShopDBUtilsProduct.getCategoty(db);
+
+        //Get the viewmodel
+        //productListViewModel = ViewModelProviders.of(this).get(ProductListViewModel.class);
+
+        ////// Test: Create the observer with updates data
+//        final Observer<ProductCategoryEntity> productCategoryObserver = new Observer<ProductCategoryEntity>() {
+//            @Override
+//            public void onChanged(@Nullable ProductCategoryEntity productCategory) {
+//                Log.d("MainActivityObserver",productCategory.getName());
+//            }
+//        };
+
+//        productListViewModel.getMutableLiveData().observe(this, productCategoryObserver);
 
         CatalogData.setCatalogs();
 
@@ -77,7 +105,13 @@ public class MainActivity extends AppCompatActivity
         basket = new Basket();
 
         ////////////// Different toolbars and buttons ////////////////////
-        toolbar = (Toolbar) findViewById(R.id.toolbar1);
+        toolbar = findViewById(R.id.toolbar1);
+        tabLayout = findViewById(R.id.tablayout);
+        viewPager = findViewById(R.id.viewpager);
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        fab = findViewById(R.id.fab);
+
         setSupportActionBar(toolbar);
 
         //////////// Tab Layout /////////////////////
@@ -86,15 +120,13 @@ public class MainActivity extends AppCompatActivity
         pagerAdapter.setCatalog(CatalogData.getCatalogs());
         pagerAdapter.setBasket(BasketData.getBasket());
 
-        tabLayout = (TabLayout) findViewById(R.id.tablayout);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(pagerAdapter);
 
 //        tabLayout.setTabsFromPagerAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,13 +144,12 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -157,11 +188,13 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Intent intent;
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.nav_map) {
+            intent = new Intent(getApplicationContext(), MapsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {

@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import ru.popovich.shopclient.data.BasketData;
+import ru.popovich.shopclient.ui.AdapterRecyclerViewBasket;
 
 public class BasketActivity extends Activity{
 
