@@ -23,7 +23,7 @@
     <TextView
         android:id="@+id/bill"
         android:textStyle="bold"
-        android:text="100$"
+        android:text="0$"
         android:padding="5sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

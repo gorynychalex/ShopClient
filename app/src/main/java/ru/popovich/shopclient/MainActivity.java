@@ -1,15 +1,16 @@
 package ru.popovich.shopclient;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,36 +27,48 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.popovich.shopclient.data.BasketData;
-import ru.popovich.shopclient.data.CatalogData;
 import ru.popovich.shopclient.db.entity.ProductEntity;
+import ru.popovich.shopclient.ui.BasketFragment;
+import ru.popovich.shopclient.ui.CatalogFragment;
 import ru.popovich.shopclient.ui.AdapterRecyclerView;
 import ru.popovich.shopclient.ui.CollectionPagerAdapter;
+import ru.popovich.shopclient.ui.MapsFragment;
 import ru.popovich.shopclient.viewmodel.ProductListViewModel;
 import ru.popovich.shopclient.db.ShopDatabase;
 import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.ModelProduct;
-import ru.popovich.shopclient.db.entity.ProductCategoryEntity;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, CatalogFragment.OnFragmentInteractionListener {
 
 
     private static final String TAG = "MainActivity";
 
     Toolbar toolbar;
-    TabLayout tabLayout;
-    ViewPager viewPager;
     DrawerLayout drawer;
 
     NavigationView navigationView;
 
     FloatingActionButton fab;
 
-    CollectionPagerAdapter pagerAdapter;
+
+    Fragment fragment;
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
+    android.support.v4.app.Fragment fragmentSupportV4;
+    android.support.v4.app.FragmentManager fragmentManagerSupportV4;
+    android.support.v4.app.FragmentTransaction fragmentTransactionSupportV4;
 
     Basket basket;
 
@@ -63,11 +76,15 @@ public class MainActivity extends AppCompatActivity
     ShopDatabase db;
 
     ProductListViewModel productListViewModel;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ///// START FRAGMENT ////
+        setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
 
         db = Room
                 .databaseBuilder(getApplicationContext(), ShopDatabase.class, "database-shop")
@@ -98,34 +115,18 @@ public class MainActivity extends AppCompatActivity
 
 //        productListViewModel.getMutableLiveData().observe(this, productCategoryObserver);
 
-        CatalogData.setCatalogs();
-
+        //// BEGIN OLD CATAloG ------------
+//        CatalogData.setCatalogs();
 
         ///////////////// BASKET INITIALIZE //////////////////////////////
-        basket = new Basket();
+//        basket = new Basket();
 
-        ////////////// Different toolbars and buttons ////////////////////
+        ////////////// MAIN toolbars and buttons ////////////////////
         toolbar = findViewById(R.id.toolbar1);
-        tabLayout = findViewById(R.id.tablayout);
-        viewPager = findViewById(R.id.viewpager);
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         fab = findViewById(R.id.fab);
-
         setSupportActionBar(toolbar);
-
-        //////////// Tab Layout /////////////////////
-        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager());
-//        pagerAdapter.setProducts(products2);
-        pagerAdapter.setCatalog(CatalogData.getCatalogs());
-        pagerAdapter.setBasket(BasketData.getBasket());
-
-        viewPager.setAdapter(pagerAdapter);
-
-//        tabLayout.setTabsFromPagerAdapter(pagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,8 +138,7 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Basket", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                intentBasket = new Intent(getApplicationContext(), BasketActivity.class);
-                                startActivity(intentBasket);
+                                setFragment(new BasketFragment(),R.id.content_coord_frame);
                             }
                         }).show();
             }
@@ -188,16 +188,21 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        Intent intent;
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_map) {
-            intent = new Intent(getApplicationContext(), MapsActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_gallery) {
+
+            setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
+
+        } else if (id == R.id.nav_map) {
+
+            setFragment(new MapsFragment(),R.id.content_coord_frame);
 
         } else if (id == R.id.nav_slideshow) {
+
+            setFragment(new BasketFragment(),R.id.content_coord_frame);
 
         } else if (id == R.id.nav_manage) {
 
@@ -212,60 +217,22 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public static class ObjectFragment extends Fragment{
-
-        public static final String ARG_OBJECT = "object";
-
-
-        private RecyclerView mRecyclerView;
-        private RecyclerView.Adapter mAdapter;
-        private RecyclerView.LayoutManager mLayoutManager;
-
-        private List<ModelProduct> products = new ArrayList<>();
-
-        private Basket basket;
-
-        public ObjectFragment() {
-
+    public void setFragment(Fragment frmt, int id){
+        fragmentTransaction = getFragmentManager().beginTransaction();
+        if(fragment != null){
+            fragment = frmt;
+            fragmentTransaction.replace(R.id.content_coord_frame,fragment);
+        } else {
+            fragment = frmt;
+            fragmentTransaction.add(R.id.content_coord_frame,fragment);
         }
-
-        public static ObjectFragment newInstance(int pageNumber, List<ModelProduct> products, Basket basket){
-            ObjectFragment objectFragment = new ObjectFragment();
-            objectFragment.products = products;
-            objectFragment.basket = basket;
-            Bundle arg = new Bundle();
-            arg.putInt(ARG_OBJECT,pageNumber);
-            objectFragment.setArguments(arg);
-            return objectFragment;
-        }
-
-
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-            Bundle arg = getArguments();
-            int pageNum = arg.getInt(ARG_OBJECT);
-
-            View rootView = inflater.inflate(
-                    R.layout.content_main, container, false);
-
-            //Recycler view
-            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
-
-            // use this setting to improve performance if you know that changes
-            // in content do not change the layout size of the RecyclerView
-//            mRecyclerView.setHasFixedSize(true);
-
-            // use a linear layout manager
-            mLayoutManager = new LinearLayoutManager(rootView.getContext());
-            mRecyclerView.setLayoutManager(mLayoutManager);
-
-            // specify an adapter (see also next example)
-            mAdapter = new AdapterRecyclerView(products,basket);
-            mRecyclerView.setAdapter(mAdapter);
-
-            return rootView;
-        }
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
 }

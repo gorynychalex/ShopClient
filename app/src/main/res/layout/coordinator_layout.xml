@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.popovich.shopclient.MainActivity"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    tools:context="ru.popovich.shopclient.MainActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_green_light"
@@ -21,17 +21,17 @@
             android:background="@android:color/holo_green_dark"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-
-        <include layout="@layout/activity_tablayout" />
-
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    <FrameLayout
+        android:id="@+id/content_coord_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        app:layout_anchor="@+id/appBarLayout"
+        app:layout_anchorGravity="bottom|center"></FrameLayout>
+
+    <!-- ///// Simple show layout, without fragments ///// -->
+    <!--<include layout="@layout/catalog_viewpager"/>-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

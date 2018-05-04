@@ -21,16 +21,15 @@ public class CollectionPagerAdapter extends FragmentStatePagerAdapter {
 
 //    List<ModelProduct> products;
 
-    Catalog catalog;
-    public void setCatalog(Catalog catalog) {
-        this.catalog = catalog;
-    }
+        Catalog catalog;
+        public void setCatalog(Catalog catalog) {
+            this.catalog = catalog;
+        }
 
-
-    Basket basket;
-    public void setBasket(Basket basket) {
-        this.basket = basket;
-    }
+        Basket basket;
+        public void setBasket(Basket basket) {
+            this.basket = basket;
+        }
 
     public CollectionPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -45,8 +44,8 @@ public class CollectionPagerAdapter extends FragmentStatePagerAdapter {
 //        fragment.setArguments(args);
 //        return fragment;
 //        return null;
-        MainActivity.ObjectFragment objectFragment = MainActivity.ObjectFragment.newInstance(position, catalog.getCategories().get(position).getProducts(), basket);
-        return objectFragment;
+//        MainActivity.ObjectFragment objectFragment = MainActivity.ObjectFragment.newInstance(position, catalog.getCategories().get(position).getProducts(), basket);
+        return null;
     }
 
     @Override
