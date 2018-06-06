@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 import ru.popovich.shopclient.R;
 
-public class MapsFragment extends Fragment {
+public class MapsFragment extends android.support.v4.app.Fragment {
 
     private static final String TAG = "MapsFragment.class";
 

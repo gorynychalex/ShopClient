@@ -24,6 +24,6 @@ public class BasicApp extends Application {
     }
 
     public DBDataRepository getRepository() {
-        return DBDataRepository.getInstance(getDatabase());
+        return DBDataRepository.getInstance(ShopDatabase.getShopDatabaseInstance(this));
     }
 }

@@ -1,17 +1,26 @@
 package ru.popovich.shopclient.ui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
+import android.icu.util.MeasureUnit;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +30,20 @@ import java.util.List;
 
 import ru.popovich.shopclient.MainActivity;
 import ru.popovich.shopclient.R;
+import ru.popovich.shopclient.SimpleApp;
 import ru.popovich.shopclient.data.BasketData;
 import ru.popovich.shopclient.data.CatalogData;
+import ru.popovich.shopclient.data.DBDataGenerator;
+import ru.popovich.shopclient.data.DBDataRepository;
+import ru.popovich.shopclient.data.ShopDBUtilsProduct;
+import ru.popovich.shopclient.db.ShopDatabase;
+import ru.popovich.shopclient.db.SimpleProductDatabase;
+import ru.popovich.shopclient.db.entity.ProductCategoryEntity;
+import ru.popovich.shopclient.db.entity.ProductEntity;
 import ru.popovich.shopclient.models.Basket;
+import ru.popovich.shopclient.models.Catalog;
 import ru.popovich.shopclient.models.ModelProduct;
+import ru.popovich.shopclient.viewmodel.ProductViewModel;
 
 /**
  * CATALOG AT FRAGMENT
@@ -38,7 +57,10 @@ import ru.popovich.shopclient.models.ModelProduct;
  * Use the {@link CatalogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CatalogFragment extends Fragment {
+public class CatalogFragment extends android.support.v4.app.Fragment {
+
+    public static final String TAG = "CatalogFragment.class";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -52,9 +74,11 @@ public class CatalogFragment extends Fragment {
     private Basket basket;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private FragmentStatePagerAdapter pagerAdapter;
+    private PagerAdapter pagerAdapter;
 
     private static CatalogFragment catalogFragment;
+
+    private ViewDataBinding catalogFragmentBinding;
 
     public CatalogFragment() {
         // Required empty public constructor
@@ -97,14 +121,84 @@ public class CatalogFragment extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-       // Inflate the layout for this fragment
+
+        //If binding is define
+//        catalogFragmentBinding = DataBindingUtil.inflate(inflater, R.layout.catalog_viewpager, container, false);
+
+//        catalogFragmentBinding.getRoot();
+
+        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.catalog_viewpager, container, false);
+
+        //// CREATE DB Instance by First method with one param context
+        ShopDatabase shopDatabase = ShopDatabase.getShopDatabaseInstance(getContext());
+
+        //// INSERT PRODUCTS ////
+//        ShopDatabase.insertProductsAndCategory(shopDatabase,
+//                DBDataGenerator.getProductCategories(),
+//                DBDataGenerator.getProducts());
+//        ShopDatabase.insertProduct(shopDatabase, new ProductEntity(4,"Salmon",5F,1, MeasureUnit.KILOGRAM));
+
+//        ShopDatabase.insertCatogory(shopDatabase, new ProductCategoryEntity("Fruit"));
+
+//        shopDatabase.productDao().loadAllLive().observe(this, new Observer<List<ProductEntity>>() {
+//            @Override
+//            public void onChanged(@Nullable List<ProductEntity> productEntities) {
+////                if(productEntities != null)
+//                if(productEntities.size()>0)
+//                Log.d(TAG, productEntities.get(productEntities.size()-1).getName() + " "
+//                        + productEntities.get(productEntities.size()-1).getCategoryId());
+//            }
+//        });
+//
+//        shopDatabase.productCategoryDao().loadAll().observe(this, new Observer<List<ProductCategoryEntity>>() {
+//            @Override
+//            public void onChanged(@Nullable List<ProductCategoryEntity> productCategoryEntities) {
+//
+//                if(productCategoryEntities.size()>0)
+//                Log.d(TAG, productCategoryEntities.get(productCategoryEntities.size()-1).getId() + ": " + productCategoryEntities.get(productCategoryEntities.size()-1).getName());
+//            }
+//        });
+
+//        SimpleProductDatabase simpleProductDatabase = SimpleProductDatabase.getInstanseDB(getContext());
+
+//        SimpleProductDatabase.insertProduct(new ProductEntity("Onion",1.0F,4.5F, MeasureUnit.KILOGRAM));
+
+//        simpleProductDatabase.productDao().loadAllLive().observe(this, new Observer<List<ProductEntity>>() {
+//            @Override
+//            public void onChanged(@Nullable List<ProductEntity> productEntities) {
+//                StringBuilder stringBuilder = new StringBuilder();
+//                productEntities.forEach(x->stringBuilder.append(x.getName() + " "));
+//                if(stringBuilder.length() != 0)
+//                    Log.d(TAG, "Products in database: " + stringBuilder.toString());
+//                else
+//                    Log.d(TAG,"Database is empty!");
+//            }
+//        });
 
         // CATALOG DEFINE
         CatalogData.setCatalogs();
+
+        ////// LIVE DATA ///// DEVELOPMENT /////
+        LiveData<Catalog> liveData = CatalogData.getCatalogs();
+
+        liveData.observe(this, new Observer<Catalog>() {
+            @Override
+            public void onChanged(@Nullable Catalog catalog) {
+
+                Log.d(TAG, "catalog test:" + catalog.getCategories().get(0).getProducts().get(0).getOnCardText());
+
+            }
+        });
+
+        Log.d(TAG,"liveData.hasActiveObservers(): " + liveData.hasActiveObservers());
+        Log.d(TAG,"liveData.hasObservers(): " + liveData.hasObservers());
+
+
 
         ///////////////// BASKET INITIALIZE //////////////////////////////
         basket = new Basket();
@@ -113,10 +207,13 @@ public class CatalogFragment extends Fragment {
         tabLayout = v.findViewById(R.id.catalog_tablayout);
         viewPager = v.findViewById(R.id.catalog_viewpager);
 
-        FragmentManager fragmentManager = getFragmentManager();
+//        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
         //////////// Tab Layout /////////////////////
-        pagerAdapter = new CollectionPagerAdapterV13(fragmentManager, CatalogData.getCatalogs(), BasketData.getBasket());
+        pagerAdapter = new CollectionPagerAdapter(fragmentManager, CatalogData.getCatalogs(), BasketData.getBasket(), liveData);
+
 //        pagerAdapter.setProducts(products2);
 //        pagerAdapter.setCatalog(CatalogData.getCatalogs());
 //        pagerAdapter.setBasket(BasketData.getBasket());
@@ -211,7 +308,7 @@ public class CatalogFragment extends Fragment {
                     R.layout.content_main, container, false);
 
             //Recycler view
-            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
+            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.section_recycler_view);
 
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView

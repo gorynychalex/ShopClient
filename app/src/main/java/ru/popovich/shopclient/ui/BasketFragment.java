@@ -13,7 +13,9 @@ import android.widget.TextView;
 import ru.popovich.shopclient.R;
 import ru.popovich.shopclient.data.BasketData;
 
-public class BasketFragment extends Fragment {
+public class BasketFragment extends android.support.v4.app.Fragment {
+
+    private static BasketFragment basketFragmentInstanse;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -23,6 +25,13 @@ public class BasketFragment extends Fragment {
     TextView size_basket;
     TextView bill;
 
+    public BasketFragment(){}
+
+    public static BasketFragment getBasketFragmentInstanse(){
+        if(basketFragmentInstanse == null)
+            basketFragmentInstanse = new BasketFragment();
+        return basketFragmentInstanse;
+    }
 
     @Nullable
     @Override

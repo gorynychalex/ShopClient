@@ -1,6 +1,9 @@
 package ru.popovich.shopclient.ui;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +20,10 @@ import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.ModelProduct;
 
 /**
+ * Adapter Recycler View
+ * for product SECTION
+ * prepare data to show one ViewPager Section
+ *
  * Created by gorynych on 01.11.17.
  */
 
@@ -40,6 +47,7 @@ public class AdapterRecyclerView extends RecyclerView.Adapter<AdapterRecyclerVie
         this.basket = basket;
     }
 
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -61,6 +69,8 @@ public class AdapterRecyclerView extends RecyclerView.Adapter<AdapterRecyclerVie
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+
+        ///// Normal fashion to set values /////////////
         holder.textCategory.setText(mDataset.get(position).getOnCardText());
         holder.textProdname.setText(mDataset.get(position).getUnderCardText());
         holder.price.setText((String.valueOf(mDataset.get(position).getPrice())));

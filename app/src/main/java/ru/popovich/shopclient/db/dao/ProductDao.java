@@ -22,6 +22,9 @@ public interface ProductDao {
     @Query("select * from product")
     List<ProductEntity> loadAll();
 
+    @Query("select * from product")
+    LiveData<List<ProductEntity>> loadAllLive();
+
     @Query("SELECT * FROM product WHERE id IN (:prodIds)")
     List<ProductEntity> loadAllByProductId(int... prodIds);
 
@@ -31,7 +34,7 @@ public interface ProductDao {
     @Query("SELECT * FROM product WHERE name like :name LIMIT 1")
     ProductEntity loadOneByName(String name);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(ProductEntity... productEntities);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

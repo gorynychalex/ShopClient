@@ -1,12 +1,14 @@
 package ru.popovich.shopclient.models;
 
+import android.arch.lifecycle.LiveData;
+
 import java.util.List;
 
 /**
  * Model Catalog and ProdCategory
  */
 
-public class Catalog {
+public class Catalog extends LiveData<Catalog> {
     private String name;
     private List<ProdCategory> categories;
     private int count;

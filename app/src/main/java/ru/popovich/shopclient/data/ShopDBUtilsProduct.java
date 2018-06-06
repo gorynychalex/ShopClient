@@ -3,6 +3,8 @@ package ru.popovich.shopclient.data;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.util.List;
+
 import ru.popovich.shopclient.db.ShopDatabase;
 import ru.popovich.shopclient.db.entity.ProductEntity;
 
@@ -12,42 +14,59 @@ import ru.popovich.shopclient.db.entity.ProductEntity;
 
 public class ShopDBUtilsProduct {
 
-    private static ShopDBTask shopDBTask;
 
     public static void addProduct(final ShopDatabase database, final ProductEntity productEntity){
-        shopDBTask = new ShopDBTask(database, 1);
-        shopDBTask.execute(productEntity);
+        new ShopDBTaskInsert(database).execute(productEntity);
+    }
+
+    public static List<ProductEntity> getProducts(final ShopDatabase database){
+        return (List<ProductEntity>) new ShopDBTaskGet(database).execute();
     }
 
 
-    public static class ShopDBTask extends AsyncTask<ProductEntity, Void, Void> {
+    // Async task for insert data operation
+    public static class ShopDBTaskInsert extends AsyncTask<ProductEntity, Void, Void> {
 
-        private final String TAG = "ShopDBTask";
+        private final String TAG = "ShopDBTaskIsert";
 
         private final ShopDatabase db;
 
-        private int operation;
 
-        public ShopDBTask(ShopDatabase db) {
+        public ShopDBTaskInsert(ShopDatabase db) {
                 this.db = db;
-        }
-
-        public ShopDBTask(ShopDatabase db, int operation) {
-            this.db = db;
-            this.operation = operation;
         }
 
         @Override
         protected Void doInBackground(ProductEntity... productEntities) {
-            switch (operation) {
-                case 1:
-                    db.productDao().insertAll(productEntities);
-                    Log.d(TAG, String.valueOf(db.productDao().loadAll().size()));
-                    break;
-                default:
-                    break;
-            }
-            return null;
+                db.productDao().insertAll(productEntities);
+                Log.d(TAG, String.valueOf(db.productDao().loadAll().size()));
+                return null;
         }
-   }
+    }
+
+    public static class ShopDBTaskGet extends AsyncTask<Void, Void, List<ProductEntity>> {
+
+        private final String TAG = "ShopDBTaskGet";
+
+        private final ShopDatabase db;
+
+
+        public ShopDBTaskGet(ShopDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected List<ProductEntity> doInBackground(Void... voids) {
+            List<ProductEntity> productEntities1 = db.productDao().loadAll();
+            Log.d(TAG, String.valueOf(db.productDao().loadAll().size()));
+            return productEntities1;
+        }
+
+        @Override
+        protected void onPostExecute(List<ProductEntity> productEntities) {
+            super.onPostExecute(productEntities);
+
+        }
+    }
+
 }

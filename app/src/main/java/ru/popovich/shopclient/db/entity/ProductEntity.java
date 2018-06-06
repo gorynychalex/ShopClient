@@ -3,6 +3,7 @@ package ru.popovich.shopclient.db.entity;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.icu.util.MeasureUnit;
@@ -46,6 +47,7 @@ public class ProductEntity implements ProductIf {
     public ProductEntity() {
     }
 
+    @Ignore
     public ProductEntity(String name, float price, float measure, MeasureUnit measureUnit) {
         this.name = name;
         this.price = price;
@@ -54,6 +56,17 @@ public class ProductEntity implements ProductIf {
         this.categoryId = 1;
     }
 
+    @Ignore
+    public ProductEntity(String name, float price, float measure) {
+        this.name = name;
+        this.price = price;
+        this.measure = measure;
+        this.measureUnit = "KILOGRAMM";
+        this.categoryId = 1;
+    }
+
+
+    @Ignore
     public ProductEntity(int categoryId, String name, float price, float measure, MeasureUnit measureUnit) {
         this.name = name;
         this.price = price;
@@ -61,6 +74,8 @@ public class ProductEntity implements ProductIf {
         this.measureUnit = measureUnit.toString();
         this.categoryId = categoryId;
     }
+
+    @Ignore
     public ProductEntity(int categoryId, String name, float price, float measure) {
         this.name = name;
         this.price = price;

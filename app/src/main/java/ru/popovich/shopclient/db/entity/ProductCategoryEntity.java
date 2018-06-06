@@ -2,6 +2,7 @@ package ru.popovich.shopclient.db.entity;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class ProductCategoryEntity implements ProductCategoryIf{
     public ProductCategoryEntity() {
     }
 
+    @Ignore
     public ProductCategoryEntity(String name) {
         this.name = name;
     }

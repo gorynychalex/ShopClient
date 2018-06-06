@@ -35,6 +35,13 @@ public class DBDataGenerator {
             productEntities.add(new ProductEntity(1,"Sandwich",1F,1));
             productEntities.add(new ProductEntity(1, "Squid", 1F, 100, MeasureUnit.GRAM));
             productEntities.add(new ProductEntity(2, "Beer", 1F, 500, MeasureUnit.MILLILITER));
+            productEntities.add(new ProductEntity(2, "Grog", 2F, 500, MeasureUnit.MILLILITER));
+            productEntities.add(new ProductEntity(2, "Juice", 1F, 500, MeasureUnit.MILLILITER));
+            productEntities.add(new ProductEntity(3, "Margarita", 1F, 500, MeasureUnit.GRAM));
+            productEntities.add(new ProductEntity(3, "4 seasons", 2F, 750, MeasureUnit.GRAM));
+            productEntities.add(new ProductEntity(3, "Boloniez", 3F, 900, MeasureUnit.GRAM));
+            productEntities.add(new ProductEntity(4, "Squid", 2F, 300, MeasureUnit.GRAM));
+            productEntities.add(new ProductEntity(4, "Salmon smoke", 5F, 200, MeasureUnit.GRAM));
         }
         return productEntities;
     }

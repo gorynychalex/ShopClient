@@ -1,5 +1,8 @@
 package ru.popovich.shopclient.data;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,10 @@ import ru.popovich.shopclient.models.ProdCategory;
  */
 
 public class CatalogData {
+
+    ///// LIVE DATA ///// FOR DEVELOPMENT /////
+    private MutableLiveData<Catalog> catalogMutableLiveData = new MutableLiveData<>();
+
     private static Catalog catalogs ;
     private static List<ProdCategory> prodCategories1 ;
     private static List<ProdCategory> prodCategories2;
@@ -56,5 +63,10 @@ public class CatalogData {
 
     public static Catalog getCatalogs(){
         return catalogs;
+    }
+
+    ////// LIVE DATA ///// FOR DEVELOPMENT //////
+    public LiveData<Catalog> getData(){
+        return catalogMutableLiveData;
     }
 }

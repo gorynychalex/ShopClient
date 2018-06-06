@@ -2,6 +2,7 @@ package ru.popovich.shopclient.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -20,17 +21,24 @@ public class DBDataRepository {
 
     private final ShopDatabase shopDatabase;
 
-    private MediatorLiveData<List<ProductCategoryEntity>> mObservableProductCategory;
+    private MediatorLiveData mObservableProduct;
+//    private MediatorLiveData<List<ProductCategoryEntity>> mObservableProductCategory;
+//    private MediatorLiveData<List<ProductEntity>> mObservableProduct;
 
     private DBDataRepository(final ShopDatabase shopDatabase) {
         this.shopDatabase = shopDatabase;
-        mObservableProductCategory = new MediatorLiveData<>();
+        mObservableProduct = new MediatorLiveData<>();
 
-        mObservableProductCategory.addSource(this.shopDatabase.productCategoryDao().loadAll(),
+        mObservableProduct.addSource(this.shopDatabase.productCategoryDao().loadAll(),
                 productCategoryEntities -> {
                     if(this.shopDatabase.getDBCreated().getValue() != null){
-                        mObservableProductCategory.postValue(productCategoryEntities);
+                        mObservableProduct.postValue(productCategoryEntities);
                     }
+                });
+        mObservableProduct.addSource(this.shopDatabase.productDao().loadAllLive(),
+                p -> {
+                    if(this.shopDatabase.getDBCreated().getValue()!=null)
+                        mObservableProduct.postValue(p);
                 });
     }
 
@@ -46,11 +54,16 @@ public class DBDataRepository {
     }
 
 
+    public LiveData<List<ProductEntity>> getProducts(){
+        return mObservableProduct;
+    }
+
+
     /**
      * Get the list of products from the database and get notified when the data changes.
      */
     public LiveData<List<ProductCategoryEntity>> getProductCategory() {
-        return mObservableProductCategory;
+        return mObservableProduct;
     }
 
     public LiveData<ProductCategoryEntity> loadCategoryByIdLive(final int categoryId) {

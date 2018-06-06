@@ -2,11 +2,15 @@ package ru.popovich.shopclient;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.icu.util.MeasureUnit;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -38,6 +42,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.popovich.shopclient.data.BasketData;
+import ru.popovich.shopclient.data.CatalogData;
+import ru.popovich.shopclient.data.DBDataGenerator;
+import ru.popovich.shopclient.data.DBDataRepository;
+import ru.popovich.shopclient.data.ShopDBUtilsProduct;
 import ru.popovich.shopclient.db.entity.ProductEntity;
 import ru.popovich.shopclient.ui.BasketFragment;
 import ru.popovich.shopclient.ui.CatalogFragment;
@@ -48,20 +56,17 @@ import ru.popovich.shopclient.viewmodel.ProductListViewModel;
 import ru.popovich.shopclient.db.ShopDatabase;
 import ru.popovich.shopclient.models.Basket;
 import ru.popovich.shopclient.models.ModelProduct;
+import ru.popovich.shopclient.viewmodel.ProductViewModel;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CatalogFragment.OnFragmentInteractionListener {
-
 
     private static final String TAG = "MainActivity";
 
     Toolbar toolbar;
     DrawerLayout drawer;
-
     NavigationView navigationView;
-
     FloatingActionButton fab;
-
 
     Fragment fragment;
     FragmentManager fragmentManager;
@@ -70,56 +75,20 @@ public class MainActivity extends AppCompatActivity
     android.support.v4.app.FragmentManager fragmentManagerSupportV4;
     android.support.v4.app.FragmentTransaction fragmentTransactionSupportV4;
 
-    Basket basket;
 
-    Intent intentBasket;
     ShopDatabase db;
 
     ProductListViewModel productListViewModel;
-    private GoogleMap mMap;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ///// START FRAGMENT ////
-        setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
-
-        db = Room
-                .databaseBuilder(getApplicationContext(), ShopDatabase.class, "database-shop")
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build();
-
-        for(ProductEntity entity: db.productDao().loadAll())
-            Log.d(TAG+"_DBTHREAD", entity.getName());
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            ShopDBUtilsProduct.addCategoty(db,new ProductCategoryEntity("Sandwich"));
-//            ShopDBUtilsProduct.addProduct(db,new ProductEntity("Sandwich",2.5F,200, MeasureUnit.GRAM,1));
-//        }
-
-//        ShopDBUtilsProduct.getCategoty(db);
-
-        //Get the viewmodel
-        //productListViewModel = ViewModelProviders.of(this).get(ProductListViewModel.class);
-
-        ////// Test: Create the observer with updates data
-//        final Observer<ProductCategoryEntity> productCategoryObserver = new Observer<ProductCategoryEntity>() {
-//            @Override
-//            public void onChanged(@Nullable ProductCategoryEntity productCategory) {
-//                Log.d("MainActivityObserver",productCategory.getName());
-//            }
-//        };
-
-//        productListViewModel.getMutableLiveData().observe(this, productCategoryObserver);
-
-        //// BEGIN OLD CATAloG ------------
-//        CatalogData.setCatalogs();
-
-        ///////////////// BASKET INITIALIZE //////////////////////////////
-//        basket = new Basket();
+//        setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
+        setFragmentSupportV4(CatalogFragment.newInstance(), R.id.content_coord_frame);
 
         ////////////// MAIN toolbars and buttons ////////////////////
         toolbar = findViewById(R.id.toolbar1);
@@ -138,7 +107,8 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Basket", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                setFragment(new BasketFragment(),R.id.content_coord_frame);
+//                                setFragment(new BasketFragment(),R.id.content_coord_frame);
+                                setFragmentSupportV4(BasketFragment.getBasketFragmentInstanse(), R.id.content_coord_frame);
                             }
                         }).show();
             }
@@ -151,6 +121,8 @@ public class MainActivity extends AppCompatActivity
 
 
         navigationView.setNavigationItemSelectedListener(this);
+
+
     }
 
     @Override
@@ -194,15 +166,18 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_gallery) {
 
-            setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
+//            setFragment(CatalogFragment.newInstance(),R.id.content_coord_frame);
+            setFragmentSupportV4(CatalogFragment.newInstance(), R.id.content_coord_frame);
 
         } else if (id == R.id.nav_map) {
 
-            setFragment(new MapsFragment(),R.id.content_coord_frame);
+//            setFragment(new MapsFragment(),R.id.content_coord_frame);
+            setFragmentSupportV4(new MapsFragment(), R.id.content_coord_frame);
 
         } else if (id == R.id.nav_slideshow) {
 
-            setFragment(new BasketFragment(),R.id.content_coord_frame);
+//            setFragment(new BasketFragment(),R.id.content_coord_frame);
+            setFragmentSupportV4(BasketFragment.getBasketFragmentInstanse(), R.id.content_coord_frame);
 
         } else if (id == R.id.nav_manage) {
 
@@ -217,14 +192,29 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    public void setFragmentSupportV4(android.support.v4.app.Fragment frmt, int id){
+        fragmentTransactionSupportV4 = getSupportFragmentManager().beginTransaction();
+        if(fragmentSupportV4 != null){
+            fragmentSupportV4 = frmt;
+            fragmentTransactionSupportV4.replace(id, fragmentSupportV4);
+        } else {
+            fragmentSupportV4 = frmt;
+            fragmentTransactionSupportV4.add(id, fragmentSupportV4);
+        }
+        fragmentTransactionSupportV4.addToBackStack(null);
+        fragmentTransactionSupportV4.commit();
+    }
+
+
     public void setFragment(Fragment frmt, int id){
         fragmentTransaction = getFragmentManager().beginTransaction();
         if(fragment != null){
             fragment = frmt;
-            fragmentTransaction.replace(R.id.content_coord_frame,fragment);
+            fragmentTransaction.replace(id,fragment);
         } else {
             fragment = frmt;
-            fragmentTransaction.add(R.id.content_coord_frame,fragment);
+            fragmentTransaction.add(id,fragment);
         }
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

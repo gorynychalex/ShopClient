@@ -2,6 +2,7 @@ package ru.popovich.shopclient.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
@@ -10,10 +11,13 @@ import android.arch.persistence.room.TypeConverter;
 import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import ru.popovich.shopclient.AppExecutors;
 import ru.popovich.shopclient.data.DBDataGenerator;
@@ -36,7 +40,7 @@ import ru.popovich.shopclient.db.entity.ProductCategoryEntity;
 */
 
 @Database(entities = {ProductEntity.class, ProductCategoryEntity.class, ProductCommentEntity.class},
-        version = 2,
+        version = 5,
         exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class ShopDatabase extends RoomDatabase {
@@ -44,21 +48,55 @@ public abstract class ShopDatabase extends RoomDatabase {
     private static ShopDatabase shopDatabaseInstance;
 
     //TEST
-    @VisibleForTesting
-    public static final String DATABASE_NAME = "basic-sample-db";
+//    @VisibleForTesting
+    public static final String DATABASE_NAME = "basic-shop-db-1";
 
     public abstract ProductCategoryDao productCategoryDao();
     public abstract ProductDao productDao();
     public abstract ProductCommentDao productCommentDao();
+    private static AppExecutors executor;
+
 
     private final MutableLiveData<Boolean> mutableLiveDataIsCreated = new MutableLiveData<>();
+
+    public static ShopDatabase getShopDatabaseInstance(final Context context){
+        if(shopDatabaseInstance == null){
+            synchronized (ShopDatabase.class){
+                if (shopDatabaseInstance == null){
+                    executor = new AppExecutors();
+                    shopDatabaseInstance = Room.databaseBuilder(context.getApplicationContext(),
+                            ShopDatabase.class, DATABASE_NAME)
+                            .fallbackToDestructiveMigration()
+                            .addCallback(new Callback() {
+                                @Override
+                                public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                                    super.onCreate(db);
+                                    executor.diskIO().execute(()-> {
+//                                        ShopDatabase shopDatabase = ShopDatabase.getShopDatabaseInstance(context.getApplicationContext());
+                                        insertData(shopDatabaseInstance,
+                                                DBDataGenerator.getProductCategories(),
+                                                DBDataGenerator.getProducts(),null);
+
+                                    });
+                                }
+                            })
+                            .build();
+                }
+            }
+        }
+        return shopDatabaseInstance;
+    }
 
     public static ShopDatabase getShopDatabaseInstance(final Context context, final AppExecutors appExecutors){
         if(shopDatabaseInstance == null){
             synchronized (ShopDatabase.class){
                 if (shopDatabaseInstance == null){
-                    shopDatabaseInstance = buildDatabase(context.getApplicationContext(), appExecutors);
-                    shopDatabaseInstance.updateDBCreated(context.getApplicationContext());
+//                    shopDatabaseInstance = buildDatabase(context.getApplicationContext(), appExecutors);
+//                    shopDatabaseInstance.updateDBCreated(context.getApplicationContext());
+                    shopDatabaseInstance = Room.databaseBuilder(context.getApplicationContext(),
+                            ShopDatabase.class,DATABASE_NAME)
+                            .fallbackToDestructiveMigration()
+                            .build();
                 }
             }
         }
@@ -80,23 +118,23 @@ public abstract class ShopDatabase extends RoomDatabase {
                         executors.diskIO().execute(() -> {
 
                             // Add a delay to simulate a long-running operation
-                            try {
-                                Thread.sleep(3000);
-                            } catch (InterruptedException ignored) {
-                            }
+//                            try {
+//                                Thread.sleep(3000);
+//                            } catch (InterruptedException ignored) {
+//                            }
 
                             // Generate the data for pre-population
                             ShopDatabase database = ShopDatabase.getShopDatabaseInstance(appContext, executors);
 
-                            List<ProductCategoryEntity> productCategoryEntities = DBDataGenerator.getProductCategories();
-                            List<ProductEntity> productEntities = DBDataGenerator.getProducts();
+//                            List<ProductCategoryEntity> productCategoryEntities = DBDataGenerator.getProductCategories();
+//                            List<ProductEntity> productEntities = DBDataGenerator.getProducts();
 //                            List<ProductEntity> products = DataGenerator.generateProducts();
 //                            List<ProductCommentEntity> comments =
-//                                    DataGenerator.generateCommentsForProducts(products);
+//                                    DBDataGenerator.generateCommentsForProducts(products);
 
-//                            insertData(database, productCategoryEntities, productEntities);
+//                            insertData(database, productCategoryEntities, productEntities,null);
                             // notify that the database was created and it's ready to be used
-                            database.setDatabaseCreated();
+//                            database.setDatabaseCreated();
                         });
                     }
                 }).build();
@@ -122,11 +160,44 @@ public abstract class ShopDatabase extends RoomDatabase {
         shopDatabase.runInTransaction(() -> {
             shopDatabase.productCategoryDao().insert(productCategories);
             shopDatabase.productDao().insert(products);
+            if(comments!=null)
             shopDatabase.productCommentDao().insertAll(comments);
         });
     }
 
+
+    public static void insertProductsAndCategory(final ShopDatabase shopDatabase,
+                                                 final List<ProductCategoryEntity> productCategoryEntities,
+                                                 final List<ProductEntity> productEntities){
+        executor.diskIO().execute(()->
+        shopDatabase.runInTransaction(()->{
+            if(productCategoryEntities != null)
+                shopDatabase.productCategoryDao().insert(productCategoryEntities);
+
+            if(productEntities !=null)
+                shopDatabase.productDao().insert(productEntities);
+        }));
+    }
+
+    public static void insertCatogory(final ShopDatabase shopDatabase,
+                                      final ProductCategoryEntity productCategoryEntity){
+        executor.diskIO().execute(()-> shopDatabase.productCategoryDao().insert(productCategoryEntity));
+    }
+
+    public static void insertProduct(final ShopDatabase shopDatabase,
+                                     final ProductEntity productEntity){
+        executor.diskIO().execute(()->
+            shopDatabase.runInTransaction(()->{
+                shopDatabase.productDao().insertAll(productEntity);
+            })
+        );
+    }
+
     public LiveData<Boolean> getDBCreated() {
         return mutableLiveDataIsCreated;
+    }
+
+    LiveData<List<ProductEntity>> getListProduct(){
+        return shopDatabaseInstance.productDao().loadAllLive();
     }
 }
